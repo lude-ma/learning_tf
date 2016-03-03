@@ -24,13 +24,16 @@ if __name__ == '__main__':
 
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
-        # W query the listener for a specific transformation,
-        # from frame 'turtle2' to frame 'carrot1' at time 'time'.
-        # Passing rospy.Time(0) we obtain the latest available transform.
+        # We query the listener for a specific transformation,
+        # from frame 'turtle2' to frame 'carrot1' at time 'now'.
+        # Since it takes some time (typically a few milliseconds) for
+        # broadcasted transforms to get into the buffer, this query fails
+        # with a ExtrapolationException.
         try:
+            now = rospy.Time.now()
             (trans, rot) = listener.lookupTransform('/turtle2',
                                                     '/carrot1',
-                                                    rospy.Time(0))
+                                                    now)
         except (tf.LookupException,
                 tf.ConnectivityException,
                 tf.ExtrapolationException):
