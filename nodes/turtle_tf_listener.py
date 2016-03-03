@@ -25,11 +25,11 @@ if __name__ == '__main__':
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
         # W query the listener for a specific transformation,
-        # from frame 'turtle2' to frame 'turtle1' at time 'time'.
+        # from frame 'turtle2' to frame 'carrot1' at time 'time'.
         # Passing rospy.Time(0) we obtain the latest available transform.
         try:
             (trans, rot) = listener.lookupTransform('/turtle2',
-                                                    '/turtle1',
+                                                    '/carrot1',
                                                     rospy.Time(0))
         except (tf.LookupException,
                 tf.ConnectivityException,
