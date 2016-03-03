@@ -1,5 +1,6 @@
 #!/usr/bin/env python
 
+import math
 import rospy
 import tf
 
@@ -9,10 +10,10 @@ if __name__ == '__main__':
     br = tf.TransformBroadcaster()
     rate = rospy.Rate(10.0)
     while not rospy.is_shutdown():
-        # Create a fixed transform from parent 'turtle1' to child 'carrot1'
-        # with a 2m offset in positive y direction between the frames.
-        # That is, 'carrot1' is 2m to the left of 'turtle1'.
-        br.sendTransform((0.0, 2.0, 0.0),
+        # Create a transform from parent 'turtle1' to child 'carrot1'
+        # that changes over time.
+        t = rospy.Time.now().to_sec()*math.pi
+        br.sendTransform((2.0*math.sin(t), 2.0*math.cos(t), 0.0),
                          (0.0, 0.0, 0.0, 1.0),
                          rospy.Time.now(),
                          "carrot1",
