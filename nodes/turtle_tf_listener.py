@@ -23,28 +23,30 @@ if __name__ == '__main__':
                                  queue_size=1)
 
     rate = rospy.Rate(10.0)
-    timeout = rospy.Duration(4.0)
-    # Why this second call to waitForTransform? Due to the spawing of
-    # 'turtle2'. We wait until the '/turtle2' frame is broadcast on tf
-    # before trying to wait for transform at time 'now'.
-    listener.waitForTransform('/turtle2', '/carrot1', rospy.Time(0), timeout)
+    timeout = rospy.Duration(1.0)
+    listener.waitForTransform("/turtle2", "/turtle1", rospy.Time(0), timeout)
+    rospy.sleep(5.0)
     while not rospy.is_shutdown():
         # We query the listener for a specific transformation,
-        # from frame 'turtle2' to frame 'carrot1' at time 'now'.
-        # Since it takes some time (typically a few milliseconds) for
-        # broadcasted transforms to get into the buffer, this query fails
-        # with a ExtrapolationException.
-        #
-        # The call to waitForTransform will block until the transform from
-        # frame '/turtle2' to frame '/carrot1' becomes available or---if the
-        # transform does not become available---until the timeout has been
-        # reached.
+        # from current frame 'turtle2' to frame 'turtle1' 5 seconds ago.
         try:
             now = rospy.Time.now()
-            listener.waitForTransform('/turtle2', '/carrot1', now, timeout)
-            (trans, rot) = listener.lookupTransform('/turtle2',
-                                                    '/carrot1',
-                                                    now)
+            past = now - rospy.Duration(5.0)
+            # The advanced API for lookupTransform() computes the transform
+            # from frame 'turtle2' at time 'now' to frame 'turtle1' at time
+            # 'past' using the help of a fixed frame 'world' that does not
+            # change over time.
+            # What happens is the following:
+            # - In the past tf computes the transform from 'turtle1' to 'world'.
+            # - In the world frame tf time travels from the past to now.
+            # - At time now tf computes the transform from 'world' to 'turtle2'.
+            listener.waitForTransformFull('/turtle2', now,
+                                          '/turtle1', past,
+                                          '/world',
+                                          timeout)
+            (trans, rot) = listener.lookupTransformFull('/turtle2', now,
+                                                        '/turtle1', past,
+                                                        '/world')
         except (tf.LookupException,
                 tf.ConnectivityException,
                 tf.ExtrapolationException):
