@@ -11,7 +11,7 @@ if __name__ == '__main__':
     rospy.init_node('tf_turtle')
 
     # The listener receives tf transformations over the wire
-    # and buffers them for up to 10 seconds.
+    # and buffers them for up to 10 seconds (by default).
     listener = tf.TransformListener()
 
     rospy.wait_for_service('spawn')
