@@ -23,14 +23,25 @@ if __name__ == '__main__':
                                  queue_size=1)
 
     rate = rospy.Rate(10.0)
+    timeout = rospy.Duration(4.0)
+    # Why this second call to waitForTransform? Due to the spawing of
+    # 'turtle2'. We wait until the '/turtle2' frame is broadcast on tf
+    # before trying to wait for transform at time 'now'.
+    listener.waitForTransform('/turtle2', '/carrot1', rospy.Time(0), timeout)
     while not rospy.is_shutdown():
         # We query the listener for a specific transformation,
         # from frame 'turtle2' to frame 'carrot1' at time 'now'.
         # Since it takes some time (typically a few milliseconds) for
         # broadcasted transforms to get into the buffer, this query fails
         # with a ExtrapolationException.
+        #
+        # The call to waitForTransform will block until the transform from
+        # frame '/turtle2' to frame '/carrot1' becomes available or---if the
+        # transform does not become available---until the timeout has been
+        # reached.
         try:
             now = rospy.Time.now()
+            listener.waitForTransform('/turtle2', '/carrot1', now, timeout)
             (trans, rot) = listener.lookupTransform('/turtle2',
                                                     '/carrot1',
                                                     now)
